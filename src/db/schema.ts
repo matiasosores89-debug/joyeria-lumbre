@@ -40,6 +40,7 @@ export const facturas = sqliteTable("facturas", {
   montoRecibido: integer("monto_recibido"),
   estado: text({ enum: ["emitida", "anulada"] }).notNull().default("emitida"),
   motivoAnulacion: text("motivo_anulacion"), fechaAnulacion: text("fecha_anulacion"),
+  importeAReintegrar: integer("importe_a_reintegrar"),
   anuladorId: integer("anulador_id").references(() => usuarios.id),
 }, t => [uniqueIndex("facturas_numeracion").on(t.puntoVenta, t.numero), index("facturas_fecha").on(t.fecha), index("facturas_cliente").on(t.clienteId)]);
 export const facturaItems = sqliteTable("factura_items", {

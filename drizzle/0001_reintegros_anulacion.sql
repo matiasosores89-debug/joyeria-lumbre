@@ -1,0 +1,1 @@
+ALTER TABLE `facturas` ADD `importe_a_reintegrar` integer;

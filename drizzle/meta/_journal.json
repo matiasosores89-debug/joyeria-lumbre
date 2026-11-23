@@ -8,6 +8,13 @@
       "when": 1795395416385,
       "tag": "0000_wet_black_panther",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1795396925347,
+      "tag": "0001_reintegros_anulacion",
+      "breakpoints": true
     }
   ]
 }

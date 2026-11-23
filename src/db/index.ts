@@ -21,18 +21,34 @@ export type Consulta = Base | Tx;
 
 let turno = Promise.resolve();
 
-// Evita SQLITE_BUSY entre peticiones de un mismo proceso local.
-export async function escribir<T>(operacion: (tx: Tx) => Promise<T>): Promise<T> {
-  if (!(process.env.DATABASE_URL || "file:lumbre.db").startsWith("file:")) {
-    return db().transaction(operacion);
+function bloqueo(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  if ("code" in error && typeof error.code === "string" && error.code.startsWith("SQLITE_BUSY")) return true;
+  return bloqueo(error.cause);
+}
+
+// libSQL inicia en modo write. Un bloqueo explícito permite reintentar la transacción.
+async function transaccion<T>(operacion: (tx: Tx) => Promise<T>): Promise<T> {
+  for (const demora of [25, 70, 160]) {
+    try { return await db().transaction(operacion); }
+    catch (error) {
+      if (!bloqueo(error)) throw error;
+      await new Promise(resolve => setTimeout(resolve, demora));
+    }
   }
+  return db().transaction(operacion);
+}
+
+// La cola evita competir por el mismo archivo desde solicitudes locales.
+export async function escribir<T>(operacion: (tx: Tx) => Promise<T>): Promise<T> {
+  if (!(process.env.DATABASE_URL || "file:lumbre.db").startsWith("file:")) return transaccion(operacion);
 
   const anterior = turno;
   let liberar!: () => void;
   turno = new Promise<void>(resolve => { liberar = resolve; });
   await anterior;
   try {
-    return await db().transaction(operacion);
+    return await transaccion(operacion);
   } finally {
     liberar();
   }

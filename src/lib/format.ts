@@ -1,8 +1,14 @@
 export const zonaArgentina = "America/Argentina/Buenos_Aires";
 const moneda = new Intl.NumberFormat("es-AR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-const fechaLocal = new Intl.DateTimeFormat("es-AR", { timeZone: zonaArgentina, dateStyle: "short", timeStyle: "short" });
+const fechaLocal = new Intl.DateTimeFormat("es-AR", {
+  timeZone: zonaArgentina, day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+});
+const hoyLocal = new Intl.DateTimeFormat("es-AR", { timeZone: zonaArgentina, dateStyle: "long" });
+const monedaCompacta = new Intl.NumberFormat("es-AR", { notation: "compact" });
 const fechaISO = new Intl.DateTimeFormat("sv-SE", { timeZone: zonaArgentina, year: "numeric", month: "2-digit", day: "2-digit" });
 export const pesos = (centavos: number) => "$ " + moneda.format(centavos / 100);
+export const pesosCompactos = (centavos: number) => "$ " + monedaCompacta.format(centavos / 100);
+export const fechaLarga = (fecha = new Date()) => hoyLocal.format(fecha);
 export const fechaHora = (iso: string) => fechaLocal.format(new Date(iso));
 export const fechaArgentina = (fecha = new Date()) => fechaISO.format(fecha);
 export const inicioDia = (dia: string) => new Date(dia + "T00:00:00-03:00").toISOString();

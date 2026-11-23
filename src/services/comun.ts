@@ -44,7 +44,3 @@ export function filtrosFecha(columna: SQLWrapper, rango: { desde?: string; hasta
 export function pagina<T>(data: T[], { page, pageSize }: Paginacion, total: number) {
   return { data, page, pageSize, total };
 }
-
-export function buscarPatron(q: string) {
-  return "%" + q.replace(/[\\%_]/g, "\\$&").toLowerCase() + "%";
-}
