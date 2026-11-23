@@ -2,7 +2,7 @@ import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { db, escribir, type Consulta, type Tx } from "../db";
 import { facturas, movimientosStock, productos, usuarios } from "../db/schema";
 import { numeroFactura } from "../lib/format";
-import { stockQuery, stockSchema } from "../lib/validacion";
+import { motivoAjuste, stockQuery, stockSchema } from "../lib/validacion";
 import { admin, ApiError, count, existe, filtrosFecha, pagina, validar, type Usuario } from "./comun";
 
 type Movimiento = Pick<typeof movimientosStock.$inferInsert, "tipo" | "cantidad" | "motivo" | "observacion" | "facturaId">;
@@ -41,14 +41,28 @@ export async function moverStock(tx: Tx, usuario: Usuario, productoId: number, d
   }).returning({ id: movimientosStock.id }).get();
 }
 
-// RF-P4 y RF-P5: el signo se determina en el servidor.
+// RF-P4 y RF-P5: en un ajuste se calcula la diferencia y se conserva el historial.
 export async function registrarStock(usuario: Usuario, productoId: number, input: unknown) {
   const datos = validar(stockSchema, input);
   admin(usuario);
   return escribir(async tx => {
-    const movimiento = await moverStock(tx, usuario, productoId, {
-      ...datos, cantidad: datos.tipo === "ingreso" ? datos.cantidad : -datos.cantidad,
-    });
+    let cambio: Movimiento;
+    if (datos.tipo === "ajuste") {
+      const producto = existe(await tx.select({ existencia: productos.existencia }).from(productos).where(eq(productos.id, productoId)).get(), "El producto");
+      if (producto.existencia !== datos.existenciaEsperada) {
+        throw new ApiError(409, "STOCK_DESACTUALIZADO", "La existencia cambió mientras trabajabas. Revisá el stock actualizado antes de guardar.");
+      }
+      const cantidad = datos.existenciaObjetivo - producto.existencia;
+      if (cantidad === 0) {
+        throw new ApiError(422, "VALIDACION", "El conteo coincide con la existencia actual.", [
+          { campo: "existenciaObjetivo", mensaje: "Ingresá una cantidad distinta de la actual." },
+        ]);
+      }
+      cambio = { tipo: cantidad > 0 ? "ingreso" : "egreso", cantidad, motivo: motivoAjuste, observacion: datos.observacion };
+    } else {
+      cambio = { ...datos, cantidad: datos.tipo === "ingreso" ? datos.cantidad : -datos.cantidad };
+    }
+    const movimiento = await moverStock(tx, usuario, productoId, cambio);
     return publico(existe(await consulta(tx).where(eq(movimientosStock.id, movimiento.id)).get(), "El movimiento"));
   });
 }

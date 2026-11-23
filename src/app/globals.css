@@ -1,19 +1,24 @@
 @import "tailwindcss";
 
 @theme inline {
-  --font-sans: "Aptos", "Segoe UI", sans-serif;
-  --font-display: Georgia, "Times New Roman", serif;
-  --color-background: #f8f6f2;
-  --color-foreground: #241e19;
-  --color-card: #fffefa;
-  --color-card-foreground: #241e19;
-  --color-primary: #6e482e;
+  --font-sans: "DM Sans Variable", "Segoe UI", sans-serif;
+  --font-display: "Playfair Display Variable", Georgia, serif;
+  --color-background: #f8f1e7;
+  --color-foreground: #302320;
+  --color-card: #fffaf2;
+  --color-card-foreground: #302320;
+  --color-primary: #642541;
   --color-primary-foreground: #fffaf2;
-  --color-muted: #f0ece5;
-  --color-muted-foreground: #6b6258;
-  --color-border: #e8e0d5;
-  --color-ring: #9e714e;
-  --color-destructive: #a33737;
+  --color-muted: #f0e5db;
+  --color-muted-foreground: #6c5554;
+  --color-border: #ddccbe;
+  --color-ring: #8a4a63;
+  --color-destructive: #a1323c;
+  --color-wine: #45172e;
+  --color-wine-dark: #331022;
+  --color-rose-paper: #ead2d6;
+  --color-gold-ink: #e6b985;
+  --color-olive-ink: #294b42;
 }
 
 @layer base {
@@ -21,6 +26,7 @@
   body { @apply bg-background text-foreground antialiased; }
   :focus-visible { @apply outline-2 outline-offset-2 outline-ring; }
   button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+  ::selection { @apply bg-rose-paper text-wine; }
 }
 
 @media print {

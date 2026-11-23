@@ -2,7 +2,11 @@
 
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, CornerDownLeft, PackagePlus, Trash2 } from "lucide-react";
+import { ArrowRightIcon as ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
+import { CheckIcon as Check } from "@phosphor-icons/react/dist/ssr/Check";
+import { KeyReturnIcon as CornerDownLeft } from "@phosphor-icons/react/dist/ssr/KeyReturn";
+import { PackageIcon as PackagePlus } from "@phosphor-icons/react/dist/ssr/Package";
+import { TrashIcon as Trash2 } from "@phosphor-icons/react/dist/ssr/Trash";
 import { facturaSchema } from "@/lib/validacion";
 import { formas, pesos } from "@/lib/format";
 import type { crearCliente } from "@/services/clientes";

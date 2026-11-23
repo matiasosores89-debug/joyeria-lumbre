@@ -13,10 +13,14 @@ export function useFormulario({ schema, enviar, alGuardar, exito = "Cambios guar
   const [errores, setErrores] = useState<Record<string, string>>({});
   const [aviso, setAviso] = useState<AvisoTipo>();
 
-  async function enviarDatos(body: unknown) {
-    if (ocupado.current) return;
+  function limpiarAvisos() {
     setErrores({});
     setAviso(undefined);
+  }
+
+  async function enviarDatos(body: unknown) {
+    if (ocupado.current) return;
+    limpiarAvisos();
     const validado = schema.safeParse(body);
     if (!validado.success) {
       setErrores(Object.fromEntries(validado.error.issues.map(issue => [issue.path.join("."), issue.message])));
@@ -53,5 +57,5 @@ export function useFormulario({ schema, enviar, alGuardar, exito = "Cambios guar
     };
   }
 
-  return { submit, enviarDatos, guardando, errores, aviso };
+  return { submit, enviarDatos, guardando, errores, aviso, limpiarAvisos };
 }

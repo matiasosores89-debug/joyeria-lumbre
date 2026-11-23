@@ -1,10 +1,11 @@
 "use client";
 
-import { Pencil, Plus } from "lucide-react";
-import { categoriaPatch, categoriaSchema, motivosEgreso, motivosIngreso, productoPatch, productoSchema, stockSchema } from "@/lib/validacion";
+import { PencilSimpleLineIcon as Pencil } from "@phosphor-icons/react/dist/ssr/PencilSimpleLine";
+import { PlusIcon as Plus } from "@phosphor-icons/react/dist/ssr/Plus";
+import { categoriaPatch, categoriaSchema, productoPatch, productoSchema } from "@/lib/validacion";
 import type { obtenerProducto } from "@/services/productos";
 import { Button } from "./ui/button";
-import { Campo, CampoDinero, centavos, dineroEditable, entero, Selector, TextoLargo, valor } from "./fields";
+import { Campo, CampoDinero, centavos, dineroEditable, entero, Selector, valor } from "./fields";
 import { FormModal } from "./form-modal";
 
 type Producto = Awaited<ReturnType<typeof obtenerProducto>>;
@@ -43,21 +44,6 @@ export function EstadoProducto({ producto }: { producto: Producto }) {
   return <FormModal titulo={texto} descripcion={activar ? "El producto volverá a ofrecerse en ventas." : "El producto dejará de ofrecerse en ventas y conservará su historial."}
     trigger={<Button variant="outline">{texto}</Button>} boton={texto} peligro={!activar} exito={activar ? "Producto reactivado." : "Producto dado de baja."}
     schema={productoPatch} operacion="editarProducto" id={producto.id} armar={() => ({ activo: activar })} />;
-}
-
-export function MovimientoManual({ producto, tipo }: { producto: Producto; tipo: "ingreso" | "egreso" }) {
-  const ingreso = tipo === "ingreso";
-  const titulo = ingreso ? "Registrar ingreso" : "Registrar egreso";
-  const motivos = ingreso ? motivosIngreso : motivosEgreso;
-  return <FormModal titulo={titulo} descripcion={producto.descripcion + " · Existencia actual: " + producto.existencia}
-    trigger={<Button variant="outline" size="sm">{ingreso ? "Ingreso" : "Egreso"}</Button>}
-    operacion="registrarStock" schema={stockSchema} id={producto.id} exito="Movimiento registrado."
-    armar={data => ({ tipo, cantidad: entero(data, "cantidad"), motivo: valor(data, "motivo"), observacion: valor(data, "observacion") || undefined })}
-    campos={errores => <>
-      <Campo name="cantidad" label="Cantidad" type="number" min={1} max={ingreso ? undefined : producto.existencia} error={errores.cantidad} required />
-      <Selector name="motivo" label="Motivo" error={errores.motivo} required><option value="">Seleccioná un motivo</option>{motivos.map(m => <option key={m}>{m}</option>)}</Selector>
-      <TextoLargo name="observacion" label="Observación (opcional)" error={errores.observacion} />
-    </>} />;
 }
 
 export function EditorCategoria({ categoria }: { categoria?: Categoria }) {

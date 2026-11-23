@@ -48,6 +48,28 @@ test("roles, campos estrictos, código único y egreso por encima del stock", as
   assert.equal((await obtenerProducto(admin, p.id)).existencia, 1);
 });
 
+test("el ajuste físico registra la diferencia y rechaza una existencia desactualizada", async () => {
+  const p = await pieza("PR-AJUSTE", 5);
+  const ajustar = (existenciaEsperada: number, existenciaObjetivo: number) => ({
+    tipo: "ajuste", existenciaEsperada, existenciaObjetivo, observacion: "Conteo de vitrina",
+  });
+
+  await assert.rejects(registrarStock(vendedor, p.id, ajustar(5, 6)), error(403, "SIN_PERMISO"));
+  await assert.rejects(registrarStock(admin, p.id, ajustar(5, 5)), error(422, "VALIDACION"));
+  const ingreso = await registrarStock(admin, p.id, ajustar(5, 8));
+  assert.equal(ingreso.cantidad, 3);
+  assert.equal(ingreso.tipo, "ingreso");
+  await assert.rejects(registrarStock(admin, p.id, ajustar(5, 2)), error(409, "STOCK_DESACTUALIZADO"));
+  const egreso = await registrarStock(admin, p.id, ajustar(8, 0));
+  assert.equal(egreso.cantidad, -8);
+  assert.equal(egreso.existenciaResultante, 0);
+  assert.equal(egreso.motivo, "Ajuste de inventario");
+  assert.equal(egreso.observacion, "Conteo de vitrina");
+  const historial = await listarStock(vendedor, {}, p.id);
+  assert.deepEqual(historial.data.map(m => m.existenciaResultante), [0, 8, 5]);
+  assert.equal(historial.data.reduce((suma, m) => suma + m.cantidad, 0), (await obtenerProducto(admin, p.id)).existencia);
+});
+
 test("dos ventas de la última unidad emiten una factura sin salto en la numeración", async () => {
   const p = await pieza("PR-02", 1);
   const previo = (await proximoNumero(admin)).numeroFormateado;

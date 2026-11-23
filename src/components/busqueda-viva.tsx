@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useState, type ComponentProps, type ReactNode } from "react";
-import { Search } from "lucide-react";
+import { MagnifyingGlassIcon as Search } from "@phosphor-icons/react/dist/ssr/MagnifyingGlass";
 import { Input } from "./ui/input";
 
 type Identificable = { id: number };

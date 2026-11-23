@@ -6,7 +6,8 @@ import type { Query } from "@/services/comun";
 import { pesos } from "@/lib/format";
 import { recurso } from "@/lib/page-data";
 import { Encabezado, Paginador, Panel } from "@/components/shared";
-import { EditorProducto, EstadoProducto, MovimientoManual } from "@/components/productos-forms";
+import { EditorProducto, EstadoProducto } from "@/components/productos-forms";
+import { StockDialog } from "@/components/stock-dialog";
 import { TablaStock } from "@/components/stock-table";
 import { Badge } from "@/components/ui/badge";
 
@@ -26,7 +27,7 @@ export default async function Producto({ params, searchParams }: { params: Promi
         <div><dt className="text-muted-foreground">Estado</dt><dd className="mt-1"><Badge tone={producto.activo ? "green" : "neutral"}>{producto.activo ? "Activo" : "Inactivo"}</Badge></dd></div>
       </dl>
     </Panel>
-    <Panel titulo="Movimientos de stock" acciones={usuario.rol === "admin" && <div className="flex gap-2"><MovimientoManual producto={producto} tipo="ingreso" /><MovimientoManual producto={producto} tipo="egreso" /></div>}>
+    <Panel titulo="Movimientos de stock" acciones={<StockDialog producto={producto} puedeEditar={usuario.rol === "admin"} />}>
       <TablaStock data={historial.data} />
       <Paginador data={historial} query={query} ruta={"/productos/" + producto.id} />
     </Panel>

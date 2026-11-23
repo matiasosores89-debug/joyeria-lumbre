@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRightIcon as ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { fechaHora, formas, pesos } from "@/lib/format";
 import type { resumenFactura } from "@/services/resumen-factura";
 import { EstadoFactura, Tabla, enlaceTabla } from "./shared";

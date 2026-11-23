@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, KeyRound, Pencil, UserPlus } from "lucide-react";
+import { CopySimpleIcon as Copy } from "@phosphor-icons/react/dist/ssr/CopySimple";
+import { KeyIcon as KeyRound } from "@phosphor-icons/react/dist/ssr/Key";
+import { PencilSimpleLineIcon as Pencil } from "@phosphor-icons/react/dist/ssr/PencilSimpleLine";
+import { UserPlusIcon as UserPlus } from "@phosphor-icons/react/dist/ssr/UserPlus";
 import { z } from "zod";
 import { mutarAction } from "@/app/actions";
 import { claveSchema, usuarioPatch, usuarioSchema } from "@/lib/validacion";

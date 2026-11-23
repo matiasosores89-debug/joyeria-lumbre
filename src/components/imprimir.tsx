@@ -1,6 +1,6 @@
 "use client";
 
-import { Printer } from "lucide-react";
+import { PrinterIcon as Printer } from "@phosphor-icons/react/dist/ssr/Printer";
 import { Button } from "./ui/button";
 
 export function Imprimir() {

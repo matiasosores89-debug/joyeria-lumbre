@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowUpRight, CircleDollarSign } from "lucide-react";
+import { ArrowUpRightIcon as ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
+import { HandCoinsIcon as CircleDollarSign } from "@phosphor-icons/react/dist/ssr/HandCoins";
 import type { listarClientes } from "@/services/clientes";
 import type { Query } from "@/services/comun";
 import { filtro } from "@/lib/page-data";

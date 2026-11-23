@@ -76,6 +76,12 @@ Para la defensa, iniciar sesión como administrador y probar una venta a consumi
 3. Subir la rama `main` al repositorio del grupo. Importar ese repositorio desde Vercel con el preset Next.js. En el proyecto de Vercel configurar `DATABASE_URL`, `TURSO_AUTH_TOKEN` y `AUTH_SECRET` para Production. Para generar este último se puede usar `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. [Next.js en Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs) · [Variables de entorno](https://vercel.com/docs/environment-variables).
 4. Abrir la URL con los dos roles. Registrar una venta de prueba y comprobar que aparece en Turso. Completar la sección de integrantes, anotar la URL pública en este README y compartir los accesos de evaluación con el docente.
 
+## Créditos fotográficos
+
+- Acceso. [Planet Volumes en Unsplash](https://unsplash.com/photos/a-close-up-of-a-womans-gold-jewelry--lpL_EoKMyI).
+- Tablero. [Focal Insight Photography en Unsplash](https://unsplash.com/photos/a-close-up-of-a-gold-chain-with-rings-on-it-_7CfuX0S92o).
+- Catálogo. [Oscar Ramirez en Unsplash](https://unsplash.com/photos/a-pair-of-gold-rings-sitting-on-top-of-a-white-box-cFY0oVaxN3g).
+
 ## Uso de IA
 
 Se usó Codex para implementar y probar el sistema. Durante la verificación se corrigió un desborde móvil de las tablas y se comprobó la reversión de una factura ante una falla provocada luego de actualizar el stock de uno de sus productos.

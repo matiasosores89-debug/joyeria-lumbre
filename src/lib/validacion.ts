@@ -26,11 +26,18 @@ const camposProducto = z.strictObject({
 export const productoSchema = camposProducto.extend({ stockInicial: cantidadBase.min(0).optional() });
 export const productoPatch = camposProducto.partial().extend({ activo: z.boolean().optional() });
 export const motivosIngreso = ["Reposición", "Stock inicial", "Devolución de cliente"] as const;
-export const motivosEgreso = ["Rotura", "Vencimiento", "Ajuste de inventario", "Uso interno"] as const;
+export const motivoAjuste = "Ajuste de inventario";
+export const motivosEgreso = ["Rotura", "Vencimiento", motivoAjuste, "Uso interno"] as const;
 const camposStock = { cantidad, observacion: texto(400).optional() };
 export const stockSchema = z.discriminatedUnion("tipo", [
   z.strictObject({ ...camposStock, tipo: z.literal("ingreso"), motivo: z.enum(motivosIngreso) }),
   z.strictObject({ ...camposStock, tipo: z.literal("egreso"), motivo: z.enum(motivosEgreso) }),
+  z.strictObject({
+    tipo: z.literal("ajuste"),
+    existenciaObjetivo: z.number({ error: "Ingresá la cantidad contada." }).int().nonnegative(),
+    existenciaEsperada: z.number().int().nonnegative(),
+    observacion: texto(400),
+  }),
 ]);
 const camposCliente = z.strictObject({
   tipoDoc: z.enum(["DNI", "CUIT"]),

@@ -1,6 +1,8 @@
 "use client";
 
-import { CheckCircle2, CircleAlert, X } from "lucide-react";
+import { CheckCircleIcon as CheckCircle2 } from "@phosphor-icons/react/dist/ssr/CheckCircle";
+import { WarningCircleIcon as CircleAlert } from "@phosphor-icons/react/dist/ssr/WarningCircle";
+import { XIcon as X } from "@phosphor-icons/react/dist/ssr/X";
 import { Button } from "./ui/button";
 
 export type AvisoTipo = { texto: string; error?: boolean };

@@ -7,4 +7,4 @@ export async function proxy(request: NextRequest) {
   return await verificarSesion(token) ? NextResponse.next() : NextResponse.redirect(new URL("/login", request.url));
 }
 
-export const config = { matcher: ["/((?!api|_next/static|_next/image|favicon.ico|icon.svg).*)"] };
+export const config = { matcher: ["/((?!api|_next/static|_next/image|favicon.ico|icon.svg|fotos/).*)"] };

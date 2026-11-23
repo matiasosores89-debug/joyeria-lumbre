@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { CircleDollarSign, Pencil, UserPlus } from "lucide-react";
+import { HandCoinsIcon as CircleDollarSign } from "@phosphor-icons/react/dist/ssr/HandCoins";
+import { PencilSimpleLineIcon as Pencil } from "@phosphor-icons/react/dist/ssr/PencilSimpleLine";
+import { UserPlusIcon as UserPlus } from "@phosphor-icons/react/dist/ssr/UserPlus";
 import { clientePatch, clienteSchema, pagoSchema } from "@/lib/validacion";
 import { medios, pesos } from "@/lib/format";
 import type { crearCliente, obtenerCliente } from "@/services/clientes";

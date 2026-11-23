@@ -1,6 +1,6 @@
 "use client";
 
-import { Ban } from "lucide-react";
+import { ProhibitIcon as Ban } from "@phosphor-icons/react/dist/ssr/Prohibit";
 import { anulacionSchema } from "@/lib/validacion";
 import { TextoLargo, valor } from "./fields";
 import { FormModal } from "./form-modal";

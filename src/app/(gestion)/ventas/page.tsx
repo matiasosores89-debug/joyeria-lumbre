@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { PlusIcon as Plus } from "@phosphor-icons/react/dist/ssr/Plus";
 import { exigirSesion } from "@/auth/session";
 import { listarFacturas, opcionesVendedor } from "@/services/facturas";
 import { listarClientes, obtenerCliente } from "@/services/clientes";
