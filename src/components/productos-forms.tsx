@@ -2,14 +2,18 @@
 
 import { PencilSimpleLineIcon as Pencil } from "@phosphor-icons/react/dist/ssr/PencilSimpleLine";
 import { PlusIcon as Plus } from "@phosphor-icons/react/dist/ssr/Plus";
+import { TrashIcon } from "@phosphor-icons/react/dist/ssr/Trash";
+import { z } from "zod";
 import { categoriaPatch, categoriaSchema, productoPatch, productoSchema } from "@/lib/validacion";
 import type { obtenerProducto } from "@/services/productos";
+import type { listarCategorias } from "@/services/categorias";
+import { GaleriaIconosCategoria } from "./icono-categoria";
 import { Button } from "./ui/button";
 import { Campo, CampoDinero, centavos, dineroEditable, entero, Selector, valor } from "./fields";
 import { FormModal } from "./form-modal";
 
 type Producto = Awaited<ReturnType<typeof obtenerProducto>>;
-export type CategoriaProducto = { id: number; nombre: string; activa: boolean };
+export type CategoriaProducto = Awaited<ReturnType<typeof listarCategorias>>[number];
 
 export function EditorProducto({ producto, categorias, alGuardar, compacto = false }: {
   producto?: Producto; categorias: CategoriaProducto[]; alGuardar?: (producto: Producto) => void; compacto?: boolean;
@@ -55,7 +59,11 @@ export function EstadoProducto({ producto }: { producto: Producto }) {
 export function EditorCategoria({ categoria }: { categoria?: CategoriaProducto }) {
   return <FormModal titulo={categoria ? "Editar categoría" : "Nueva categoría"} trigger={<Button size={categoria ? "sm" : "default"} variant={categoria ? "outline" : "default"}>{categoria ? <Pencil /> : <Plus />}{categoria ? "Editar" : "Nueva categoría"}</Button>}
     operacion={categoria ? "editarCategoria" : "crearCategoria"} id={categoria?.id} schema={categoria ? categoriaPatch : categoriaSchema}
-    armar={data => ({ nombre: valor(data, "nombre") })} campos={errores => <Campo name="nombre" label="Nombre" defaultValue={categoria?.nombre} error={errores.nombre} required />} />;
+    armar={data => ({ nombre: valor(data, "nombre"), icono: valor(data, "icono") || null })}
+    campos={errores => <>
+      <Campo name="nombre" label="Nombre" defaultValue={categoria?.nombre} error={errores.nombre} required />
+      <GaleriaIconosCategoria icono={categoria?.icono} nombre={categoria?.nombre} error={errores.icono} />
+    </>} />;
 }
 
 export function EstadoCategoria({ categoria }: { categoria: CategoriaProducto }) {
@@ -63,4 +71,13 @@ export function EstadoCategoria({ categoria }: { categoria: CategoriaProducto })
   return <FormModal titulo={titulo + " categoría"} descripcion={categoria.activa ? "La categoría se puede dar de baja cuando no tiene productos activos." : "La categoría volverá a estar disponible."}
     trigger={<Button size="sm" variant="ghost">{titulo}</Button>} boton={titulo} peligro={categoria.activa}
     operacion="editarCategoria" id={categoria.id} schema={categoriaPatch} armar={() => ({ activa: !categoria.activa })} />;
+}
+
+export function EliminarCategoria({ categoria, alEliminar }: { categoria: CategoriaProducto; alEliminar: () => void }) {
+  const etiqueta = "Eliminar categoría " + categoria.nombre;
+  return <FormModal titulo="¿Eliminar categoría?" descripcion={"Se eliminará «" + categoria.nombre + "» de forma permanente."}
+    trigger={<Button type="button" size="sm" variant="ghost" className="w-9 px-0 text-destructive hover:bg-rose-50 hover:text-destructive"
+      aria-label={etiqueta} title={etiqueta}><TrashIcon aria-hidden /></Button>}
+    boton="Eliminar categoría" peligro exito="Categoría eliminada."
+    operacion="eliminarCategoria" id={categoria.id} schema={z.null()} armar={() => null} alGuardar={alEliminar} />;
 }

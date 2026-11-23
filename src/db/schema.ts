@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { check, index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { iconosCategoria } from "../lib/iconos-categoria";
 
 const id = () => integer().primaryKey({ autoIncrement: true });
 const created = () => text("creado_en").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ','now'))`);
@@ -14,6 +15,7 @@ export const usuarios = sqliteTable("usuarios", {
 });
 export const categorias = sqliteTable("categorias", {
   id: id(), creadoEn: created(), nombre: text().notNull().unique(), activa: active(),
+  icono: text({ enum: iconosCategoria }),
 });
 export const productos = sqliteTable("productos", {
   id: id(), creadoEn: created(), codigo: text().notNull().unique(), descripcion: text().notNull(),

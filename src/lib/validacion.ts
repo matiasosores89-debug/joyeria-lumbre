@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { iconosCategoria } from "./iconos-categoria";
 
 const texto = (max = 120) => z.string().trim().min(1, "Es obligatorio.").max(max);
 export const id = z.number().int().positive();
@@ -17,7 +18,7 @@ export const loginSchema = z.strictObject({ email, password: claveActual });
 export const claveSchema = z.strictObject({ actual: claveActual, nueva: clave });
 export const usuarioSchema = z.strictObject({ nombre: texto(), email, rol, password: clave });
 export const usuarioPatch = usuarioSchema.omit({ password: true }).partial().extend({ activo: z.boolean().optional() });
-export const categoriaSchema = z.strictObject({ nombre: texto(80) });
+export const categoriaSchema = z.strictObject({ nombre: texto(80), icono: z.enum(iconosCategoria, "Elegí un ícono de la galería.").nullish() });
 export const categoriaPatch = categoriaSchema.partial().extend({ activa: z.boolean().optional() });
 const camposProducto = z.strictObject({
   codigo: texto(40).transform(v => v.toUpperCase()), descripcion: texto(180),

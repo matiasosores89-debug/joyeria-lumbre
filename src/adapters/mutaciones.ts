@@ -1,6 +1,6 @@
 import { cambiarClave, ingresar } from "@/services/auth";
 import { crearUsuario, editarUsuario, restablecerClave } from "@/services/usuarios";
-import { crearCategoria, editarCategoria } from "@/services/categorias";
+import { crearCategoria, editarCategoria, eliminarCategoria } from "@/services/categorias";
 import { crearProducto, editarProducto } from "@/services/productos";
 import { registrarStock } from "@/services/stock";
 import { crearCliente, editarCliente } from "@/services/clientes";
@@ -28,6 +28,7 @@ export const mutaciones = {
   restablecerClave,
   crearCategoria: (u: Usuario, _id: number, body: unknown) => crearCategoria(u, body),
   editarCategoria,
+  eliminarCategoria,
   crearProducto: (u: Usuario, _id: number, body: unknown) => crearProducto(u, body),
   editarProducto,
   registrarStock,

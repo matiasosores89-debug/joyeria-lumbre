@@ -4,7 +4,7 @@ import { migrate } from "drizzle-orm/libsql/migrator";
 import { eq, sql } from "drizzle-orm";
 import { db } from "../src/db";
 import { facturaItems, facturas, movimientosCuenta, movimientosStock, usuarios } from "../src/db/schema";
-import { crearCategoria } from "../src/services/categorias";
+import { crearCategoria, editarCategoria, eliminarCategoria, listarCategorias } from "../src/services/categorias";
 import { cuentaCliente, crearCliente, editarCliente } from "../src/services/clientes";
 import { ApiError, type Usuario } from "../src/services/comun";
 import { anularFactura, emitirFactura, listarFacturas, obtenerFactura, proximoNumero } from "../src/services/facturas";
@@ -46,6 +46,40 @@ test("roles, campos estrictos, código único y egreso por encima del stock", as
   await assert.rejects(pieza(" pr-01 ", 2), error(409, "CODIGO_DUPLICADO"));
   await assert.rejects(registrarStock(admin, p.id, { tipo: "egreso", cantidad: 2, motivo: "Rotura" }), error(409, "STOCK_INSUFICIENTE"));
   assert.equal((await obtenerProducto(admin, p.id)).existencia, 1);
+});
+
+test("la categoría conserva su ícono, lo puede cambiar y admite la opción automática", async () => {
+  const previa = (await listarCategorias(admin, {})).find(c => c.id === categoriaId);
+  assert.equal(previa?.icono, null);
+  const categoria = await crearCategoria(admin, { nombre: "Colección Lunar", icono: "luna" });
+  assert.equal(categoria.icono, "luna");
+  await assert.rejects(editarCategoria(admin, categoria.id, { icono: "desconocido" }), error(422, "VALIDACION"));
+  const editada = await editarCategoria(admin, categoria.id, { nombre: "Colección de regalo", icono: "regalo" });
+  assert.equal(editada.icono, "regalo");
+  assert.equal((await editarCategoria(admin, categoria.id, { activa: false })).icono, "regalo");
+  const automatica = await editarCategoria(admin, categoria.id, { activa: true, icono: null });
+  assert.equal(automatica.icono, null);
+  assert.equal((await listarCategorias(vendedor, {})).find(c => c.id === categoria.id)?.icono, null);
+});
+
+test("solo un administrador puede eliminar una categoría sin productos asociados", async () => {
+  const categoria = await crearCategoria(admin, { nombre: "Categoría temporal" });
+  await assert.rejects(eliminarCategoria(vendedor, categoria.id), error(403, "SIN_PERMISO"));
+
+  const producto = await crearProducto(admin, {
+    codigo: "PR-CATEGORIA", descripcion: "Producto de prueba", categoriaId: categoria.id, precio: 1000, stockMinimo: 0,
+  });
+  await assert.rejects(eliminarCategoria(admin, categoria.id), error(409, "CATEGORIA_EN_USO"));
+  await editarProducto(admin, producto.id, { activo: false });
+  await editarCategoria(admin, categoria.id, { activa: false });
+  await assert.rejects(eliminarCategoria(admin, categoria.id), error(409, "CATEGORIA_EN_USO"));
+  assert.equal((await obtenerProducto(admin, producto.id)).categoria.id, categoria.id);
+
+  await editarProducto(admin, producto.id, { categoriaId });
+  await eliminarCategoria(admin, categoria.id);
+  const categorias = await listarCategorias(admin, { todas: "true" });
+  assert.ok(categorias.every(item => item.id !== categoria.id));
+  await assert.rejects(eliminarCategoria(admin, categoria.id), error(404, "NO_ENCONTRADO"));
 });
 
 test("el ajuste físico registra la diferencia y rechaza una existencia desactualizada", async () => {
