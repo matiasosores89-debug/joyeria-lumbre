@@ -15,6 +15,7 @@ const claveActual = z.string().min(1, "Es obligatorio.").refine(limiteBcrypt, "L
 const clave = z.string().min(8, "Usá al menos 8 caracteres.").refine(limiteBcrypt, "La contraseña admite hasta 72 bytes.");
 const rol = z.enum(["admin", "vendedor"]);
 export const loginSchema = z.strictObject({ email, password: claveActual });
+export const accesoDemoSchema = z.strictObject({ rol, claveDemo: z.string().regex(/^[a-f0-9]{64}$/) });
 export const claveSchema = z.strictObject({ actual: claveActual, nueva: clave });
 export const usuarioSchema = z.strictObject({ nombre: texto(), email, rol, password: clave });
 export const usuarioPatch = usuarioSchema.omit({ password: true }).partial().extend({ activo: z.boolean().optional() });

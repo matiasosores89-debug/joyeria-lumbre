@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useSyncExternalStore } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
@@ -8,7 +8,8 @@ import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { KeyIcon } from "@phosphor-icons/react/dist/ssr/Key";
 import { StorefrontIcon } from "@phosphor-icons/react/dist/ssr/Storefront";
 import { iniciarAction } from "@/app/actions";
-import { loginSchema } from "@/lib/validacion";
+import { accesoDemoSchema, loginSchema } from "@/lib/validacion";
+import { z } from "zod";
 import type { RolDemo } from "@/lib/cuentas-demo";
 import { Marca } from "./layout";
 import { Campo, valor } from "./fields";
@@ -21,14 +22,30 @@ const accesos = [
   { rol: "vendedor", etiqueta: "Ventas", icono: StorefrontIcon },
 ] as const;
 
-export function Acceso({ cuentas }: { cuentas?: Partial<Record<RolDemo, { email: string; password: string }>> }) {
+const formularioAcceso = z.union([loginSchema, accesoDemoSchema]);
+
+function suscribirEnlaceDemo(actualizar: () => void) {
+  window.addEventListener("hashchange", actualizar);
+  return () => window.removeEventListener("hashchange", actualizar);
+}
+
+function leerClaveDemo() {
+  return /^#demo=([a-f0-9]{64})$/.exec(window.location.hash)?.[1];
+}
+
+export function Acceso({ cuentas, demoHabilitada }: {
+  cuentas?: Partial<Record<RolDemo, { email: string; password: string }>>;
+  demoHabilitada: boolean;
+}) {
   const router = useRouter();
   const [elegido, setElegido] = useState<RolDemo | null>(null);
-  const form = useFormulario({ schema: loginSchema, enviar: iniciarAction, exito: "Sesión iniciada.", alGuardar: () => {
+  const claveDemo = useSyncExternalStore(suscribirEnlaceDemo, leerClaveDemo, () => undefined);
+  const demo = demoHabilitada && claveDemo;
+  const form = useFormulario({ schema: formularioAcceso, enviar: iniciarAction, exito: "Sesión iniciada.", alGuardar: () => {
     router.replace("/");
     router.refresh();
   } });
-  const disponibles = accesos.filter(({ rol }) => cuentas?.[rol]);
+  const disponibles = accesos.filter(({ rol }) => demo || cuentas?.[rol]);
   return <main className="acceso-ventana grid h-dvh grid-rows-[minmax(0,1fr)_auto] overflow-hidden md:grid-cols-[1.18fr_1fr] md:grid-rows-1">
     <section className="acceso-foto relative isolate order-2 flex h-[clamp(3rem,11dvh,8.5rem)] items-end overflow-hidden bg-wine-dark text-primary-foreground md:order-1 md:h-full">
       <Image src="/fotos/acceso.webp" alt="Joyería dorada de filigrana sobre tela" fill preload sizes="(min-width: 768px) 55vw, 100vw" className="object-cover object-[center_54%]" />
@@ -53,15 +70,16 @@ export function Acceso({ cuentas }: { cuentas?: Partial<Record<RolDemo, { email:
           <Button type="submit" size="lg" className="mt-0.5 w-full justify-between" disabled={form.guardando}>{form.guardando && !elegido ? "Ingresando…" : "Ingresar"}<ArrowRightIcon aria-hidden /></Button>
         </form>
         {disponibles.length > 0 && <section aria-labelledby="accesos-demo" className="mt-5 border-t border-primary/25 pt-3">
-          <h2 id="accesos-demo" className="font-display text-xl font-medium tracking-tight text-wine">Acceso de prueba</h2>
-          <div className="mt-2 grid grid-cols-2 gap-2.5">
+          <h2 id="accesos-demo" className="font-display text-xl font-medium tracking-tight text-wine">Acceso rápido</h2>
+          <p className="mt-1 text-sm text-muted-foreground">Solo para la demostración del parcial.</p>
+          <div className="mt-3 grid grid-cols-2 gap-2.5">
             {disponibles.map(({ rol, etiqueta, icono: Icono }) => <Button key={rol} type="button" variant="outline" size="lg"
               aria-label={"Ingresar como " + etiqueta}
               className="min-h-12 min-w-0 justify-start gap-1.5 bg-card px-2.5 text-xs min-[390px]:gap-2 min-[390px]:px-3 min-[390px]:text-sm"
               disabled={form.guardando} onClick={() => {
                 if (form.guardando) return;
                 setElegido(rol);
-                void form.enviarDatos(cuentas?.[rol]);
+                void form.enviarDatos(demo ? { rol, claveDemo } : cuentas?.[rol]);
               }}>
               <Icono weight="duotone" className="shrink-0" aria-hidden />
               <span className="min-w-0">{form.guardando && elegido === rol ? "Ingresando…" : etiqueta}</span>

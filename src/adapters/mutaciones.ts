@@ -7,10 +7,13 @@ import { crearCliente, editarCliente } from "@/services/clientes";
 import { registrarPago } from "@/services/pagos";
 import { anularFactura } from "@/services/facturas";
 import { abrirSesion, cerrarSesion } from "@/auth/session";
-import type { Usuario } from "@/services/comun";
+import { ApiError, type Usuario } from "@/services/comun";
 
-export async function iniciar(body: unknown) {
+export async function iniciar(body: unknown, rolEsperado?: Usuario["rol"]) {
   const resultado = await ingresar(body);
+  if (rolEsperado && resultado.usuario.rol !== rolEsperado) {
+    throw new ApiError(403, "SIN_PERMISO", "La cuenta de demostración no tiene el rol solicitado.");
+  }
   await abrirSesion(resultado.usuario.id, resultado.version);
   return resultado.usuario;
 }
