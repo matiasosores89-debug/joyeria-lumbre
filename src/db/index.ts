@@ -4,12 +4,16 @@ import * as schema from "./schema";
 
 let conexion: (LibSQLDatabase<typeof schema> & { $client: Client }) | undefined;
 
+export function urlBaseDeDatos() {
+  return process.env.DATABASE_URL || process.env.TURSO_DATABASE_URL || "file:lumbre.db";
+}
+
 export function db() {
   if (conexion) return conexion;
-  const url = process.env.DATABASE_URL || "file:lumbre.db";
+  const url = urlBaseDeDatos();
   const authToken = process.env.TURSO_AUTH_TOKEN || undefined;
   if ((process.env.VERCEL || !url.startsWith("file:")) && (!authToken || url.startsWith("file:"))) {
-    throw new Error("La conexión remota requiere DATABASE_URL de Turso y TURSO_AUTH_TOKEN.");
+    throw new Error("La conexión remota requiere DATABASE_URL o TURSO_DATABASE_URL, y TURSO_AUTH_TOKEN.");
   }
   conexion = drizzle(createClient({ url, authToken }), { schema });
   return conexion;
@@ -41,7 +45,7 @@ async function transaccion<T>(operacion: (tx: Tx) => Promise<T>): Promise<T> {
 
 // La cola evita competir por el mismo archivo desde solicitudes locales.
 export async function escribir<T>(operacion: (tx: Tx) => Promise<T>): Promise<T> {
-  if (!(process.env.DATABASE_URL || "file:lumbre.db").startsWith("file:")) return transaccion(operacion);
+  if (!urlBaseDeDatos().startsWith("file:")) return transaccion(operacion);
 
   const anterior = turno;
   let liberar!: () => void;

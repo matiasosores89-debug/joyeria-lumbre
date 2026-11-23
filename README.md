@@ -6,7 +6,7 @@ Trabajo del segundo parcial de Programación IV. [Enunciado](https://github.com/
 
 **Integrantes** · Pendiente de completar con los tres nombres y legajos.
 
-**URL pública** · Pendiente de publicar el proyecto y vincular la base de Turso.
+**URL pública** · [Lumbre Joyas en Vercel](https://lumbre-joyas.vercel.app).
 
 ## Puesta en marcha local
 
@@ -65,7 +65,8 @@ Para la defensa, iniciar sesión como administrador y probar una venta a consumi
 
 | Variable | Local | Producción |
 | --- | --- | --- |
-| `DATABASE_URL` | `file:lumbre.db` | URL de Turso que empieza con `libsql://`. |
+| `DATABASE_URL` | `file:lumbre.db` | URL de Turso que empieza con `libsql://`. Si falta, se usa `TURSO_DATABASE_URL`. |
+| `TURSO_DATABASE_URL` | Vacía | URL que configura la integración de Turso del Marketplace de Vercel. |
 | `TURSO_AUTH_TOKEN` | Vacía | Token con acceso de escritura a la base. |
 | `AUTH_SECRET` | Se genera en la primera migración | Secreto aleatorio de al menos 32 caracteres. |
 | `SEED_ADMIN_EMAIL`, `SEED_ADMIN_PASSWORD` | Valores de demostración | Credenciales de prueba configuradas para la carga. |
@@ -75,6 +76,8 @@ Para la defensa, iniciar sesión como administrador y probar una venta a consumi
 2. En una terminal nueva, configurar las variables de Turso y de los dos usuarios de prueba antes de correr `pnpm run db:migrate` y `pnpm run db:seed`. En PowerShell se usa `$env:NOMBRE = "valor"`. Las variables de la terminal tienen prioridad sobre `.env`.
 3. Subir la rama `main` al repositorio del grupo. Importar ese repositorio desde Vercel con el preset Next.js. En el proyecto de Vercel configurar `DATABASE_URL`, `TURSO_AUTH_TOKEN` y `AUTH_SECRET` para Production. Para generar este último se puede usar `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"`. [Next.js en Vercel](https://vercel.com/docs/frameworks/full-stack/nextjs) · [Variables de entorno](https://vercel.com/docs/environment-variables).
 4. Abrir la URL con los dos roles. Registrar una venta de prueba y comprobar que aparece en Turso. Completar la sección de integrantes, anotar la URL pública en este README y compartir los accesos de evaluación con el docente.
+
+Si usás [Turso desde el Marketplace de Vercel](https://vercel.com/marketplace/tursocloud/database), podés vincular la base al entorno Production. La integración configura `TURSO_DATABASE_URL` y `TURSO_AUTH_TOKEN`. Para migrar y cargar esa base desde un entorno con `.env` local, pasá su URL de Turso como `DATABASE_URL` en la terminal antes de ejecutar los comandos.
 
 ## Créditos fotográficos
 

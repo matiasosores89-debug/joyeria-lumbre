@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { and, eq, count } from "drizzle-orm";
-import { db, escribir, type Base } from "../src/db";
+import { db, escribir, urlBaseDeDatos, type Base } from "../src/db";
 import { usuarios, categorias, productos, clientes, facturas, pagos } from "../src/db/schema";
 import { hashClave } from "../src/services/auth";
 import { crearCategoria } from "../src/services/categorias";
@@ -32,7 +32,7 @@ async function usuarioDemo(nombre: string, email: string, clave: string, rol: "a
 }
 
 async function cargar(base: Base) {
-  const remoto = !!process.env.DATABASE_URL && !process.env.DATABASE_URL.startsWith("file:");
+  const remoto = !urlBaseDeDatos().startsWith("file:");
   if (remoto && !["SEED_ADMIN_EMAIL", "SEED_ADMIN_PASSWORD", "SEED_VENDEDOR_EMAIL", "SEED_VENDEDOR_PASSWORD"].every(key => process.env[key])) {
     throw new Error("Configurá ambos usuarios de prueba antes de cargar los datos de Turso.");
   }
