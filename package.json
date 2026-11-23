@@ -14,7 +14,7 @@
     "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {
-    "@libsql/client": "^0.15.15",
+    "@libsql/client": "^0.18.0",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
     "bcryptjs": "^3.0.3",

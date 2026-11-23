@@ -7,13 +7,16 @@ import { db } from "../src/db";
 async function main() {
   const conexion = db();
   try {
+    const local = (process.env.DATABASE_URL || "file:lumbre.db").startsWith("file:");
+    if (local) await conexion.$client.execute("PRAGMA journal_mode = WAL");
     await migrate(conexion, { migrationsFolder: "drizzle" });
-    if (!process.env.VERCEL && (process.env.DATABASE_URL || "file:lumbre.db").startsWith("file:") && !process.env.AUTH_SECRET) {
-      const local = await readFile(".env.local", "utf8").catch(error => {
+
+    if (local && !process.env.AUTH_SECRET) {
+      const entorno = await readFile(".env.local", "utf8").catch(error => {
         if (error.code === "ENOENT") return "";
         throw error;
       });
-      if (!/^AUTH_SECRET=.+$/m.test(local)) {
+      if (!/^AUTH_SECRET=.+$/m.test(entorno)) {
         await appendFile(".env.local", "\nAUTH_SECRET=" + randomBytes(32).toString("hex") + "\n", { mode: 0o600 });
       }
     }
