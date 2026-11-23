@@ -41,6 +41,7 @@ export function Marca({ dark = false }: { dark?: boolean }) {
 export function AppFrame({ usuario, children }: { usuario: Usuario; children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const principal = useRef<HTMLElement>(null);
   const abrir = useRef<HTMLButtonElement>(null);
   const cerrar = useRef<HTMLButtonElement>(null);
   const [abierto, setAbierto] = useState(false);
@@ -62,6 +63,8 @@ export function AppFrame({ usuario, children }: { usuario: Usuario; children: Re
     document.addEventListener("keydown", tecla);
     return () => document.removeEventListener("keydown", tecla);
   }, [abierto]);
+
+  useEffect(() => { principal.current?.scrollTo(0, 0); }, [pathname]);
 
   async function salir() {
     setSaliendo(true);
@@ -94,8 +97,8 @@ export function AppFrame({ usuario, children }: { usuario: Usuario; children: Re
         <Link href="/perfil" onClick={() => setAbierto(false)} className="flex w-fit items-center gap-2 py-1 text-sm font-medium text-[#ead6db] hover:text-white">Mi perfil <ArrowUpRightIcon size={14} aria-hidden /></Link>
       </div>
     </aside>
-    <div className="min-h-dvh lg:pl-[244px] print:pl-0">
-      <header className="no-print sticky top-0 z-20 flex min-h-[68px] items-center justify-between gap-2 border-b border-border bg-background px-4 sm:px-8 xl:px-10">
+    <div className="flex h-dvh min-w-0 flex-col overflow-hidden lg:pl-[244px] print:block print:h-auto print:overflow-visible print:pl-0">
+      <header className="no-print z-20 flex min-h-[56px] shrink-0 items-center justify-between gap-2 border-b border-border bg-background px-4 sm:px-8 xl:px-10">
         <div className="flex min-w-0 items-center gap-2">
           <Button ref={abrir} variant="ghost" size="icon" className="-ml-2 lg:hidden" onClick={() => setAbierto(true)} aria-label="Abrir menú" aria-expanded={abierto} aria-controls="modulos"><ListIcon aria-hidden /></Button>
           <span className="truncate text-xs font-bold uppercase tracking-[.16em] text-primary">{activo}</span>
@@ -109,7 +112,9 @@ export function AppFrame({ usuario, children }: { usuario: Usuario; children: Re
         </div>
       </header>
       {error && <p className="px-5 pt-3 text-sm text-destructive" role="alert">{error}</p>}
-      <main id="contenido" tabIndex={-1} className="mx-auto max-w-[1530px] px-4 pt-6 pb-14 outline-none sm:px-8 lg:pt-8 xl:px-10 print:max-w-none print:p-0">{children}</main>
+      <main ref={principal} id="contenido" tabIndex={-1} className="min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain outline-none print:overflow-visible">
+        <div className="contenido-ventana mx-auto flex min-h-full max-w-[1530px] flex-col px-4 py-4 sm:px-7 xl:px-9 print:block print:max-w-none print:p-0">{children}</div>
+      </main>
     </div>
   </>;
 }

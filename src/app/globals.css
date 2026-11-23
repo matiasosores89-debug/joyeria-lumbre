@@ -29,6 +29,48 @@
   ::selection { @apply bg-rose-paper text-wine; }
 }
 
+@media screen {
+  .contenido-ventana > * { flex-shrink: 0; }
+}
+
+@media screen and (min-width: 1024px) and (min-height: 640px) {
+  .contenido-ventana { height: 100%; }
+  .contenido-ventana > .tablero-ventana { flex: 1; min-height: 0; }
+  .tablero-vistas { flex: 1; min-height: 13rem; }
+  .grafico-diario { flex: 1; min-height: 0; height: auto; }
+  .contenido-ventana > .venta-ventana { flex: 1; min-height: 22rem; align-items: stretch; }
+  .venta-lineas, .venta-productos { min-height: 0; }
+  .venta-lineas > :first-child { flex-shrink: 0; }
+  .venta-productos { flex: 1; }
+  .venta-productos > [data-tabla], .venta-pago { min-height: 0; overflow: auto; }
+  .venta-productos > [data-estado-vacio] {
+    min-height: 0;
+    padding-block: 0.5rem;
+    border-top: 1px solid var(--color-border);
+  }
+  .venta-productos > [data-estado-vacio] svg { display: none; }
+  .venta-pago { align-self: start; max-height: 100%; }
+  .contenido-ventana > .panel-listado {
+    display: flex;
+    flex: 1 1 0%;
+    min-height: 11rem;
+    flex-direction: column;
+  }
+  .panel-listado > :is([data-tabla], [data-selector-productos]) { min-height: 0; overflow: auto; }
+  .panel-listado > [data-tabla] thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-muted);
+  }
+  .panel-listado > :is([data-tabla], [data-selector-productos]) + div { margin-top: auto; }
+}
+
+@media screen and (max-width: 767px) and (max-height: 600px) {
+  .acceso-ventana { grid-template-rows: minmax(0, 1fr); }
+  .acceso-foto { display: none; }
+}
+
 @media print {
   body { background: white; }
   .no-print { display: none !important; }

@@ -11,8 +11,7 @@ import { registrarPago } from "../src/services/pagos";
 import { fechaArgentina, inicioDia } from "../src/lib/format";
 import { usuarioSchema } from "../src/lib/validacion";
 
-const adminDemo = { email: "admin@lumbre.test", clave: "LumbreAdmin2026!" };
-const vendedorDemo = { email: "ventas@lumbre.test", clave: "LumbreVentas2026!" };
+import { cuentasDemo } from "../src/lib/cuentas-demo";
 
 const colecciones = [
   ["Anillos", "AN", "Solitaire de plata", "Alianza de oro rosa", "Sello ónix", "Eternidad con circones", "Aro martillado", "Perla de río"],
@@ -37,13 +36,13 @@ async function cargar(base: Base) {
   if (remoto && !["SEED_ADMIN_EMAIL", "SEED_ADMIN_PASSWORD", "SEED_VENDEDOR_EMAIL", "SEED_VENDEDOR_PASSWORD"].every(key => process.env[key])) {
     throw new Error("Configurá ambos usuarios de prueba antes de cargar los datos de Turso.");
   }
-  const adminClave = process.env.SEED_ADMIN_PASSWORD || adminDemo.clave;
-  const vendedorClave = process.env.SEED_VENDEDOR_PASSWORD || vendedorDemo.clave;
-  if (remoto && [adminClave, vendedorClave].some(clave => clave === adminDemo.clave || clave === vendedorDemo.clave)) {
+  const adminClave = process.env.SEED_ADMIN_PASSWORD || cuentasDemo.admin.password;
+  const vendedorClave = process.env.SEED_VENDEDOR_PASSWORD || cuentasDemo.vendedor.password;
+  if (remoto && [adminClave, vendedorClave].some(clave => clave === cuentasDemo.admin.password || clave === cuentasDemo.vendedor.password)) {
     throw new Error("Elegí contraseñas para Turso distintas de las cuentas de prueba locales.");
   }
-  const adminEmail = process.env.SEED_ADMIN_EMAIL || adminDemo.email;
-  const vendedorEmail = process.env.SEED_VENDEDOR_EMAIL || vendedorDemo.email;
+  const adminEmail = process.env.SEED_ADMIN_EMAIL || cuentasDemo.admin.email;
+  const vendedorEmail = process.env.SEED_VENDEDOR_EMAIL || cuentasDemo.vendedor.email;
   if (adminEmail.toLowerCase() === vendedorEmail.toLowerCase()) throw new Error("Los dos usuarios necesitan emails diferentes.");
   const admin = await usuarioDemo("Laura Méndez", adminEmail, adminClave, "admin");
   const vendedor = await usuarioDemo("Pablo Ruiz", vendedorEmail, vendedorClave, "vendedor");

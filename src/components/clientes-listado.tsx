@@ -12,7 +12,7 @@ import { Badge } from "./ui/badge";
 
 export function ListadoClientes({ clientes, query, saldo = false }: { clientes: Awaited<ReturnType<typeof listarClientes>>; query: Query; saldo?: boolean }) {
   const ruta = saldo ? "/clientes/saldos" : "/clientes";
-  return <Panel>
+  return <Panel listado key={clientes.page + JSON.stringify(query)}>
     {saldo && <div className="flex items-center gap-3 border-b border-border p-4 text-sm"><CircleDollarSign className="text-primary" size={20} /><span>Total adeudado</span><strong>{pesos(clientes.totalAdeudado ?? 0)}</strong></div>}
     <Filtros ruta={ruta}>
       <Campo label="Buscar" name="q" defaultValue={filtro(query, "q")} placeholder="Nombre o documento" className="w-full sm:w-56" />

@@ -27,7 +27,7 @@ export default async function Producto({ params, searchParams }: { params: Promi
         <div><dt className="text-muted-foreground">Estado</dt><dd className="mt-1"><Badge tone={producto.activo ? "green" : "neutral"}>{producto.activo ? "Activo" : "Inactivo"}</Badge></dd></div>
       </dl>
     </Panel>
-    <Panel titulo="Movimientos de stock" acciones={<StockDialog producto={producto} puedeEditar={usuario.rol === "admin"} />}>
+    <Panel listado key={historial.page + JSON.stringify(query)} titulo="Movimientos de stock" acciones={<StockDialog producto={producto} puedeEditar={usuario.rol === "admin"} categorias={categorias} />}>
       <TablaStock data={historial.data} />
       <Paginador data={historial} query={query} ruta={"/productos/" + producto.id} />
     </Panel>

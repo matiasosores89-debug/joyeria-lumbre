@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { ArrowDownIcon } from "@phosphor-icons/react/dist/ssr/ArrowDown";
 import { ArrowRightIcon } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { ClockCounterClockwiseIcon } from "@phosphor-icons/react/dist/ssr/ClockCounterClockwise";
@@ -15,7 +15,9 @@ import { fechaHoraExacta, tiposStock } from "@/lib/format";
 import { motivoAjuste, motivosEgreso, motivosIngreso, stockSchema } from "@/lib/validacion";
 import type { obtenerProducto } from "@/services/productos";
 import type { listarStock } from "@/services/stock";
+import { BusquedaViva } from "./busqueda-viva";
 import { Campo, entero, Selector, TextoLargo, valor } from "./fields";
+import { EditorProducto, type CategoriaProducto } from "./productos-forms";
 import { Aviso } from "./feedback";
 import { useFormulario } from "./form-hook";
 import { Badge } from "./ui/badge";
@@ -27,22 +29,49 @@ type Historial = Awaited<ReturnType<typeof listarStock>>;
 type Operacion = "ingreso" | "egreso" | "ajuste";
 
 const operaciones = [
-  { id: "ingreso", etiqueta: "Añadir", icono: PlusIcon },
-  { id: "egreso", etiqueta: "Quitar", icono: MinusIcon },
-  { id: "ajuste", etiqueta: "Ajustar", icono: SlidersHorizontalIcon },
+  { id: "ingreso", etiqueta: "Ingresar mercadería", icono: PlusIcon },
+  { id: "egreso", etiqueta: "Disminuir stock", icono: MinusIcon },
+  { id: "ajuste", etiqueta: "Ajustar stock", icono: SlidersHorizontalIcon },
 ] as const;
 
-export function StockDialog({ producto, puedeEditar }: { producto: Producto; puedeEditar: boolean }) {
+export function StockDialog({ producto, puedeEditar, categorias = [], disparador }: {
+  producto?: Producto; puedeEditar: boolean; categorias?: CategoriaProducto[]; disparador?: ReactNode;
+}) {
   const [abierto, setAbierto] = useState(false);
   const [guardando, setGuardando] = useState(false);
-  const titulo = puedeEditar ? "Gestionar stock" : "Consultar stock";
-  return <Modal open={abierto} onOpenChange={open => { if (!guardando) setAbierto(open); }}
-    title={titulo} description={producto.codigo + " · " + producto.descripcion}
-    className="max-w-5xl p-4 sm:p-7"
-    trigger={<Button type="button" variant={puedeEditar ? "outline" : "ghost"} size="sm" aria-label={titulo + " de " + producto.descripcion}>
-      <PackageIcon weight="duotone" aria-hidden />{titulo}
+  const [seleccion, setSeleccion] = useState<Producto>();
+  const actual = seleccion ?? producto;
+  const recepcion = !producto;
+  const accion = recepcion ? "Ingreso de mercadería" : puedeEditar ? "Gestionar stock" : "Consultar stock";
+
+  return <Modal open={abierto} onOpenChange={open => {
+    if (guardando) return;
+    if (!open) setSeleccion(undefined);
+    setAbierto(open);
+  }}
+    title={actual?.descripcion ?? accion} description={actual ? accion + " · " + actual.codigo : "Buscá un producto para registrar las unidades recibidas."}
+    encabezadoFijo className={actual ? "max-w-5xl" : "max-w-xl"}
+    trigger={disparador ?? <Button type="button" variant={recepcion ? "default" : puedeEditar ? "outline" : "ghost"} size={recepcion ? "default" : "sm"}
+      aria-label={producto ? accion + " de " + producto.descripcion : accion}>
+      <PackageIcon weight="duotone" aria-hidden />{accion}
     </Button>}>
-    {abierto && <ContenidoStock producto={producto} puedeEditar={puedeEditar} setGuardando={setGuardando} />}
+    {abierto && <>
+      {puedeEditar && <fieldset disabled={guardando} className="mb-4 flex min-w-0 flex-wrap items-start gap-2">
+        <EditorProducto compacto categorias={categorias} alGuardar={setSeleccion} />
+        {actual && <EditorProducto key={actual.id} compacto producto={actual} categorias={categorias} alGuardar={setSeleccion} />}
+        {recepcion && actual && <Button type="button" size="sm" variant="ghost" disabled={guardando}
+          onClick={() => setSeleccion(undefined)}>Cambiar producto</Button>}
+      </fieldset>}
+      {actual
+        ? <ContenidoStock key={actual.id} producto={actual} puedeEditar={puedeEditar} setGuardando={setGuardando} />
+        : <div className="pb-24">
+          <BusquedaViva<Producto> endpoint="/api/productos" label="Buscar producto" placeholder="Código o descripción"
+            elegir={setSeleccion} render={p => <span className="flex flex-wrap justify-between gap-2">
+              <span><strong>{p.descripcion}</strong> <span className="text-xs text-muted-foreground">{p.codigo}</span></span>
+              <span className="text-xs text-muted-foreground">{p.existencia} u.</span>
+            </span>} />
+        </div>}
+    </>}
   </Modal>;
 }
 
@@ -137,7 +166,7 @@ function ContenidoStock({ producto, puedeEditar, setGuardando }: { producto: Pro
         </div>
         <div className="mb-4 grid grid-cols-3 gap-1 rounded-sm bg-muted p-1" role="group" aria-label="Tipo de movimiento">
           {operaciones.map(({ id, etiqueta, icono: Icono }) => <Button type="button" key={id} size="sm"
-            className="min-w-0 gap-1 px-1 sm:gap-1.5" variant={operacion === id ? "default" : "ghost"} aria-pressed={operacion === id}
+            className="h-auto min-h-14 min-w-0 flex-col gap-1 px-1 py-1.5 text-center leading-tight" variant={operacion === id ? "default" : "ghost"} aria-pressed={operacion === id}
             disabled={form.guardando} onClick={() => { if (operacion !== id) { setOperacion(id); setCantidad(""); form.limpiarAvisos(); } }}>
             <Icono aria-hidden />{etiqueta}
           </Button>)}
@@ -153,7 +182,7 @@ function ContenidoStock({ producto, puedeEditar, setGuardando }: { producto: Pro
             label={esAjuste ? "Unidades contadas" : "Cantidad de unidades"} value={cantidad} required
             error={form.errores[esAjuste ? "existenciaObjetivo" : "cantidad"] || (valido && siguiente < 0 ? "La cantidad supera la existencia disponible." : undefined)}
             onChange={event => setCantidad(event.target.value)} />
-          {!esAjuste && <Selector key={"motivo-" + operacion} name="motivo" label="Motivo" error={form.errores.motivo} required>
+          {!esAjuste && <Selector key={"motivo-" + operacion} name="motivo" label="Motivo" defaultValue={esEgreso ? "" : "Reposición"} error={form.errores.motivo} required>
             <option value="">Seleccioná un motivo</option>
             {(esEgreso ? motivosEgreso : motivosIngreso).map(motivo => <option key={motivo}>{motivo}</option>)}
           </Selector>}

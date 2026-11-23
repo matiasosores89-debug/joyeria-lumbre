@@ -79,10 +79,10 @@ export function NuevaVenta({ numero }: { numero: string }) {
     setAviso(undefined);
   }
 
-  return <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.7fr)_minmax(290px,1fr)]">
-    <div className="grid min-w-0 gap-5">
+  return <div className="venta-ventana grid items-start gap-3 lg:grid-cols-[minmax(0,1.6fr)_minmax(260px,1fr)] xl:gap-4">
+    <div className="venta-lineas flex min-w-0 flex-col gap-3">
       <Panel titulo="Comprador" className="overflow-visible">
-        <div className="grid gap-3 px-5 pb-5">
+        <div className="grid gap-2 px-4 pb-3">
           {cliente ? <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-muted/40 px-3 py-2 text-sm">
             <div><strong>{cliente.nombre}</strong><span className="ml-2 text-muted-foreground">{cliente.tipoDoc} {cliente.nroDoc}</span></div>
             <Button size="sm" variant="ghost" type="button" onClick={() => comprador(null)}>Usar consumidor final</Button>
@@ -94,8 +94,8 @@ export function NuevaVenta({ numero }: { numero: string }) {
           </div>
         </div>
       </Panel>
-      <Panel titulo="Productos de la venta" className="overflow-visible">
-        <div className="grid gap-3 px-5 pb-4">
+      <Panel titulo="Productos de la venta" className="venta-productos flex flex-col overflow-visible">
+        <div className="grid shrink-0 gap-2 px-4 pb-3">
           <BusquedaViva<Producto> inputRef={productoInput} endpoint="/api/productos" label="Agregar producto" placeholder="Código o descripción" elegir={agregar}
             deshabilitado={producto => producto.existencia === 0}
             render={p => <span className="flex flex-wrap items-center justify-between gap-2">
@@ -119,14 +119,14 @@ export function NuevaVenta({ numero }: { numero: string }) {
             }}><Trash2 /></Button></td>
           </tr>)}
         </Tabla>
-        {!!lineas.length && <div className="flex items-center justify-between gap-2 border-t border-border px-5 py-3">
+        {!!lineas.length && <div className="flex shrink-0 items-center justify-between gap-2 border-t border-border px-4 py-2">
           <span className="flex items-center gap-2 text-xs text-muted-foreground"><PackagePlus size={16} /> {lineas.reduce((suma, linea) => suma + linea.cantidad, 0)} unidades</span>
           <Button type="button" variant="outline" size="sm" onClick={() => pagoInput.current?.focus()}>Ir al pago <ArrowRight /></Button>
         </div>}
       </Panel>
     </div>
-    <Panel titulo="Pago" detalle={"Próximo comprobante: " + numero} className="xl:sticky xl:top-[87px]">
-      <form noValidate className="grid gap-4 px-5 pb-5" onSubmit={form.submit(data => ({
+    <Panel titulo="Pago" detalle={"Próximo comprobante: " + numero} className="venta-pago">
+      <form noValidate className="grid gap-2.5 px-4 pb-4" onSubmit={form.submit(data => ({
         clienteId: cliente?.id ?? null,
         items: lineas.map(({ producto, cantidad }) => ({ productoId: producto.id, cantidad })),
         pago: forma === "contado" ? { forma, ...(recibido ? { montoRecibido: centavos(recibido) } : {}) }
@@ -151,7 +151,7 @@ export function NuevaVenta({ numero }: { numero: string }) {
           <span>Saldo tras la venta <strong>{pesos(cliente.saldo + total)}</strong></span>
           {excedeCredito && <span role="alert" className="text-destructive">La venta supera el límite de crédito.</span>}
         </div>}
-        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-4"><span className="text-sm font-semibold">Total</span><strong className="text-2xl tracking-tight tabular-nums">{pesos(total)}</strong></div>
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2.5"><span className="text-sm font-semibold">Total</span><strong className="text-2xl tracking-tight tabular-nums">{pesos(total)}</strong></div>
         <Aviso aviso={form.aviso} />
         {form.errores.items && <p className="text-sm text-destructive" role="alert">{form.errores.items}</p>}
         <Button size="lg" type="submit" disabled={!lineas.length || form.guardando || emitida || excedeCredito || (!!recibido && forma === "contado" && vuelto < 0)}><Check />{emitida ? "Venta emitida" : form.guardando ? "Emitiendo…" : "Confirmar venta"}</Button>

@@ -14,7 +14,7 @@ export default async function Movimientos({ searchParams }: { searchParams: Prom
   const ruta = "/productos/movimientos";
   return <>
     <Encabezado titulo="Historial de stock" volver={{ href: "/productos", label: "Productos" }} />
-    <Panel>
+    <Panel listado key={historial.page + JSON.stringify(query)}>
       <Filtros ruta={ruta}>
         <Selector name="tipo" label="Tipo" defaultValue={filtro(query, "tipo") ?? ""}><option value="">Todos</option>{Object.entries(tiposStock).map(([key, name]) => <option key={key} value={key}>{name}</option>)}</Selector>
         <Campo name="desde" label="Desde" type="date" defaultValue={filtro(query, "desde")} />

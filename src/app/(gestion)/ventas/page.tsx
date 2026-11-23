@@ -24,7 +24,7 @@ export default async function Ventas({ searchParams }: { searchParams: Promise<Q
     ? await obtenerCliente(usuario, Number(clienteId)).catch(() => undefined) : undefined;
   return <>
     <Encabezado titulo="Facturas" descripcion="Consultá las ventas emitidas y sus comprobantes." acciones={<Button asChild><Link href="/ventas/nueva"><Plus /> Nueva venta</Link></Button>} />
-    <Panel>
+    <Panel listado key={facturas.page + JSON.stringify(query)}>
       <Filtros ruta="/ventas">
         <Campo name="q" label="Buscar" placeholder="Número o comprador" defaultValue={filtro(query, "q")} />
         <Campo name="desde" label="Desde" type="date" defaultValue={filtro(query, "desde")} />

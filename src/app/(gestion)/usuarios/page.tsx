@@ -18,7 +18,7 @@ export default async function Usuarios({ searchParams }: { searchParams: Promise
   const usuarios = await listarUsuarios(usuario, query);
   return <>
     <Encabezado titulo="Usuarios" descripcion="Administrá las cuentas del personal y sus permisos." acciones={<EditorUsuario />} />
-    <Panel>
+    <Panel listado key={usuarios.page + JSON.stringify(query)}>
       <Filtros ruta="/usuarios">
         <Campo name="q" label="Buscar" placeholder="Nombre o email" defaultValue={filtro(query, "q")} className="w-full sm:w-60" />
         <Selector name="activo" label="Estado" defaultValue={filtro(query, "activo") ?? "todos"}><option value="todos">Todos</option><option value="true">Activos</option><option value="false">Inactivos</option></Selector>
