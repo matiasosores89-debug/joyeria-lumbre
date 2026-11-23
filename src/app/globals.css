@@ -1,0 +1,31 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: "Aptos", "Segoe UI", sans-serif;
+  --font-display: Georgia, "Times New Roman", serif;
+  --color-background: #f8f6f2;
+  --color-foreground: #241e19;
+  --color-card: #fffefa;
+  --color-card-foreground: #241e19;
+  --color-primary: #6e482e;
+  --color-primary-foreground: #fffaf2;
+  --color-muted: #f0ece5;
+  --color-muted-foreground: #6b6258;
+  --color-border: #e8e0d5;
+  --color-ring: #9e714e;
+  --color-destructive: #a33737;
+}
+
+@layer base {
+  html { color-scheme: light; }
+  body { @apply bg-background text-foreground antialiased; }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-ring; }
+  button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+}
+
+@media print {
+  body { background: white; }
+  .no-print { display: none !important; }
+  .print-area { border: 0; box-shadow: none; max-width: none; margin: 0; }
+  @page { margin: 18mm; }
+}
